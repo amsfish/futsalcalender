@@ -3,11 +3,17 @@ import { GoogleGenAI } from "@google/genai";
 import { FutsalEvent, AttendanceStatus } from "../types";
 
 export const getTeamStrategy = async (event: FutsalEvent) => {
-  const apiKey = process.env.API_KEY;
+  let apiKey = '';
+  try {
+    // @ts-ignore
+    apiKey = process.env.API_KEY || '';
+  } catch (e) {
+    console.error("Failed to access process.env.API_KEY");
+  }
   
   if (!apiKey || apiKey === "undefined") {
-    console.error("Gemini API Key is missing. Please set API_KEY in your environment variables.");
-    return "APIキーが設定されていません。管理者に連絡してください。";
+    console.error("Gemini API Key is missing.");
+    return "APIキーが設定されていません。VercelのEnvironment VariablesでAPI_KEYを設定してください。";
   }
 
   const ai = new GoogleGenAI({ apiKey });
