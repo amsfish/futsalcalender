@@ -1,0 +1,7 @@
+{
+  "name": "Futsal Connect",
+  "description": "A comprehensive futsal team management and scheduling application inspired by Circle Square, featuring event coordination, attendance tracking, and AI-powered team strategy suggestions.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
