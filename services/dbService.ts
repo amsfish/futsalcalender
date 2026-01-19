@@ -1,6 +1,6 @@
 
-import { User, FutsalEvent, AttendanceStatus } from '../types.ts';
-import { supabase } from './supabaseClient.ts';
+import { User, FutsalEvent, AttendanceStatus } from '../types';
+import { supabase } from './supabaseClient';
 
 export const db = {
   getUsers: async (): Promise<User[]> => {

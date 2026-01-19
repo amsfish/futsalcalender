@@ -1,16 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { FutsalEvent, AttendanceStatus, User } from './types.ts';
-import { db } from './services/dbService.ts';
-import { supabase } from './services/supabaseClient.ts';
-import EventCard from './components/EventCard.tsx';
-import EventModal from './components/EventModal.tsx';
-import CalendarView from './components/CalendarView.tsx';
-import CreateEventModal from './components/CreateEventModal.tsx';
-import AuthScreen from './components/AuthScreen.tsx';
-import SettingsView from './components/SettingsView.tsx';
-import MemberView from './components/MemberView.tsx';
-import AdminConsole from './components/AdminConsole.tsx';
+import { FutsalEvent, AttendanceStatus, User } from './types';
+import { db } from './services/dbService';
+import { supabase } from './services/supabaseClient';
+import EventCard from './components/EventCard';
+import EventModal from './components/EventModal';
+import CalendarView from './components/CalendarView';
+import CreateEventModal from './components/CreateEventModal';
+import AuthScreen from './components/AuthScreen';
+import SettingsView from './components/SettingsView';
+import MemberView from './components/MemberView';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
