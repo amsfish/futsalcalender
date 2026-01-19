@@ -1,16 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { FutsalEvent, AttendanceStatus, User } from './types';
-import { db } from './services/dbService';
-import { supabase } from './services/supabaseClient';
-import EventCard from './components/EventCard';
-import EventModal from './components/EventModal';
-import CalendarView from './components/CalendarView';
-import CreateEventModal from './components/CreateEventModal';
-import AuthScreen from './components/AuthScreen';
-import SettingsView from './components/SettingsView';
-import MemberView from './components/MemberView';
-import AdminConsole from './components/AdminConsole';
+import { FutsalEvent, AttendanceStatus, User } from './types.ts';
+import { db } from './services/dbService.ts';
+import { supabase } from './services/supabaseClient.ts';
+import EventCard from './components/EventCard.tsx';
+import EventModal from './components/EventModal.tsx';
+import CalendarView from './components/CalendarView.tsx';
+import CreateEventModal from './components/CreateEventModal.tsx';
+import AuthScreen from './components/AuthScreen.tsx';
+import SettingsView from './components/SettingsView.tsx';
+import MemberView from './components/MemberView.tsx';
+import AdminConsole from './components/AdminConsole.tsx';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -39,7 +39,6 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    // 認証状態の監視
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         const profile = await db.getCurrentUserProfile(session.user.id);
@@ -50,7 +49,6 @@ const App: React.FC = () => {
     });
 
     fetchData();
-
     return () => subscription.unsubscribe();
   }, []);
 
@@ -124,7 +122,6 @@ const App: React.FC = () => {
     );
   }
 
-  // 承認待ち画面（自分自身が未承認の場合）
   if (currentUser && !currentUser.isApproved) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
@@ -135,12 +132,10 @@ const App: React.FC = () => {
           <h2 className="text-2xl font-black text-slate-800 mb-2 tracking-tighter uppercase">Waiting for Approval</h2>
           <p className="text-slate-500 mb-8 text-sm leading-relaxed font-medium">
             {currentUser.name}さん、ようこそ！<br />
-            現在、管理者による承認をお待ちしております。<br />
-            承認されるまでしばらくお待ちください。
+            現在、管理者による承認をお待ちしております。
           </p>
           <div className="space-y-3">
             <button onClick={handleLogout} className="w-full py-4 bg-slate-100 text-slate-600 font-black rounded-2xl hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">Logout</button>
-            {/* 開発時用：最初の1人目を管理者に昇格させるための救済処置 */}
             {allUsers.filter(u => u.role === 'ADMIN').length === 0 && (
               <button 
                 onClick={() => handleUpdateUserDetail(currentUser.id, { role: 'ADMIN', isApproved: true })}
@@ -187,9 +182,6 @@ const App: React.FC = () => {
                 onClick={() => setIsCreating(true)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl text-xs font-black transition-all shadow-lg shadow-blue-100 flex items-center uppercase tracking-widest"
               >
-                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
                 Create
               </button>
             </div>
@@ -214,14 +206,11 @@ const App: React.FC = () => {
         )}
 
         {activeTab === 'calendar' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-black text-slate-800 tracking-tighter uppercase mb-2">Calendar View</h2>
-            <CalendarView 
-              events={events} 
-              onEventClick={setSelectedEvent} 
-              onDateClick={(date) => { setInitialDate(date); setIsCreating(true); }} 
-            />
-          </div>
+          <CalendarView 
+            events={events} 
+            onEventClick={setSelectedEvent} 
+            onDateClick={(date) => { setInitialDate(date); setIsCreating(true); }} 
+          />
         )}
 
         {activeTab === 'members' && (
@@ -239,43 +228,25 @@ const App: React.FC = () => {
         )}
 
         {activeTab === 'settings' && (
-          <div className="space-y-8">
-            <SettingsView 
-              currentUser={currentUser}
-              onUpdateUser={(updates) => handleUpdateUserDetail(currentUser.id, updates)}
-              onLogout={handleLogout}
-            />
-            {currentUser.role === 'ADMIN' && (
-              <AdminConsole 
-                users={allUsers}
-                events={events}
-                currentUser={currentUser}
-                onResetDB={() => alert('Supabaseのリセットはダッシュボードから行ってください')}
-                onUpdateFullDB={async () => fetchData()}
-              />
-            )}
-          </div>
+          <SettingsView 
+            currentUser={currentUser}
+            onUpdateUser={(updates) => handleUpdateUserDetail(currentUser.id, updates)}
+            onLogout={handleLogout}
+          />
         )}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-100 px-6 py-4 flex justify-between items-center shadow-[0_-10px_30px_rgba(0,0,0,0.03)] z-40">
-        <button onClick={() => setActiveTab('events')} className={`flex flex-col items-center space-y-1 transition-all ${activeTab === 'events' ? 'text-blue-600 scale-110' : 'text-slate-300'}`}>
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-100 px-6 py-4 flex justify-between items-center z-40">
+        <button onClick={() => setActiveTab('events')} className={`flex flex-col items-center ${activeTab === 'events' ? 'text-blue-600' : 'text-slate-300'}`}>
           <span className="text-[9px] font-black uppercase tracking-tighter">Events</span>
         </button>
-        <button onClick={() => setActiveTab('calendar')} className={`flex flex-col items-center space-y-1 transition-all ${activeTab === 'calendar' ? 'text-blue-600 scale-110' : 'text-slate-300'}`}>
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg>
+        <button onClick={() => setActiveTab('calendar')} className={`flex flex-col items-center ${activeTab === 'calendar' ? 'text-blue-600' : 'text-slate-300'}`}>
           <span className="text-[9px] font-black uppercase tracking-tighter">Calendar</span>
         </button>
-        <button onClick={() => setActiveTab('members')} className={`flex flex-col items-center space-y-1 transition-all ${activeTab === 'members' ? 'text-blue-600 scale-110' : 'text-slate-300'}`}>
-          <div className="relative">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-            {currentUser.role === 'ADMIN' && allUsers.some(u => !u.isApproved) && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>}
-          </div>
+        <button onClick={() => setActiveTab('members')} className={`flex flex-col items-center ${activeTab === 'members' ? 'text-blue-600' : 'text-slate-300'}`}>
           <span className="text-[9px] font-black uppercase tracking-tighter">Team</span>
         </button>
-        <button onClick={() => setActiveTab('settings')} className={`flex flex-col items-center space-y-1 transition-all ${activeTab === 'settings' ? 'text-blue-600 scale-110' : 'text-slate-300'}`}>
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        <button onClick={() => setActiveTab('settings')} className={`flex flex-col items-center ${activeTab === 'settings' ? 'text-blue-600' : 'text-slate-300'}`}>
           <span className="text-[9px] font-black uppercase tracking-tighter">Profile</span>
         </button>
       </nav>
@@ -284,7 +255,7 @@ const App: React.FC = () => {
         <EventModal 
           event={selectedEvent} 
           currentUser={currentUser}
-          allUsers={allUsers} // 追加
+          allUsers={allUsers}
           onClose={() => setSelectedEvent(null)}
           onUpdateAttendance={handleUpdateAttendance}
         />

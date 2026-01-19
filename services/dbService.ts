@@ -1,22 +1,18 @@
 
-import { User, FutsalEvent, AttendanceStatus } from '../types';
-import { supabase } from './supabaseClient';
+import { User, FutsalEvent, AttendanceStatus } from '../types.ts';
+import { supabase } from './supabaseClient.ts';
 
 export const db = {
-  // ユーザー関連
   getUsers: async (): Promise<User[]> => {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .order('created_at', { ascending: true });
     
-    if (error) {
-      console.error('Error fetching users:', error);
-      return [];
-    }
+    if (error) return [];
     return data.map(u => ({
       ...u,
-      isApproved: u.is_approved // DBカラム名とフロントエンドプロパティ名のマッピング
+      isApproved: u.is_approved
     }));
   },
 
@@ -32,7 +28,6 @@ export const db = {
   },
 
   updateUser: async (userId: string, updates: Partial<User>) => {
-    // フロントエンドのプロパティ名をDBのカラム名に変換
     const dbUpdates: any = { ...updates };
     if (updates.isApproved !== undefined) {
       dbUpdates.is_approved = updates.isApproved;
@@ -52,11 +47,9 @@ export const db = {
       .from('profiles')
       .delete()
       .eq('id', userId);
-    
     if (error) throw error;
   },
 
-  // イベント関連
   getEvents: async (): Promise<FutsalEvent[]> => {
     const { data: eventsData, error: eventsError } = await supabase
       .from('events')
